@@ -2,11 +2,11 @@ import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { JwtService } from '@nestjs/jwt';
-import { BaseRepository } from 'src/common/base-repository';
-import { CommonServices } from 'src/common/commonServices';
+import { BaseRepository } from '../../common/base-repository';
+import { CommonServices } from '../../common/commonServices';
 import { DataSource } from 'typeorm';
-import Exception from 'src/common/exceptionHandling';
-import { User } from 'src/entities/user.entity';
+import Exception from '../../common/exceptionHandling';
+import { User } from '../../entities/user.entity';
 import { UpdateUserDetails } from './dto/usersDto';
 
 @Injectable()

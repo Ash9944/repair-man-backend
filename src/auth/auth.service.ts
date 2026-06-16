@@ -5,12 +5,12 @@ import { BaseRepository } from 'src/common/base-repository';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
 import { DataSource } from 'typeorm';
-import { User } from 'src/entities/user.entity';
-import { CommonServices } from 'src/common/commonServices';
-import Exception from 'src/common/exceptionHandling';
-import { Otp } from 'src/entities/otp.entity';
+import { User } from '../entities/user.entity';
+import { CommonServices } from '../common/commonServices';
+import Exception from '../common/exceptionHandling';
+import { Otp } from '../entities/otp.entity';
 import { JwtService } from '@nestjs/jwt';
-import { Token } from 'src/entities/token.entity';
+import { Token } from '../entities/token.entity';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable({ scope: Scope.REQUEST })

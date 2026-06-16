@@ -12,7 +12,9 @@ async function bootstrap() {
 
   // CORS — restrict to configured origins in production
   const allowedOrigins = process.env.ALLOWED_ORIGINS;
-  const origins: string | string[] = allowedOrigins ? allowedOrigins.split(',').map((o) => o.trim()) : '*';
+  const origins: string | string[] = allowedOrigins
+    ? allowedOrigins.split(',').map((o) => o.trim())
+    : '*';
   app.enableCors({
     origin: origins,
     credentials: true,

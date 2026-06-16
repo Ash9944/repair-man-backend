@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { MechanicLeadsService } from './mechanic-leads.service';
 import { CreateMechanicLeadDto } from './dto/mechanic-lead.dto';
-import { JwtAuthGuard } from 'src/auth/auth.guard';
-import { AdminRoleGuard } from 'src/auth/guards/admin.guard';
+import { JwtAuthGuard } from '../../auth/auth.guard';
+import { AdminRoleGuard } from '../../auth/guards/admin.guard';
 
 @Controller('mechanic-leads')
 export class MechanicLeadsController {

@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ILike, Repository } from 'typeorm';
-import { MechanicLead } from 'src/entities/mechanicLead.entity';
+import { MechanicLead } from '../../entities/mechanicLead.entity';
 import { CreateMechanicLeadDto } from './dto/mechanic-lead.dto';
 
 @Injectable()

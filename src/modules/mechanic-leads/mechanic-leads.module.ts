@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MechanicLead } from 'src/entities/mechanicLead.entity';
+import { MechanicLead } from '../../entities/mechanicLead.entity';
 import { MechanicLeadsController } from './mechanic-leads.controller';
 import { MechanicLeadsService } from './mechanic-leads.service';
 
