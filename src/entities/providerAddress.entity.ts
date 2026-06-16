@@ -32,12 +32,10 @@ export class ProviderAddresses {
     @Column()
     postal_code: string;
 
-    // Use "geography" type for Earth-based distances
-    @Column({
-        type: 'geography',
-        spatialFeatureType: 'Point',
-        srid: 4326,
-    })
-    location: string; // Will hold POINT(lon lat)
+    @Column({ type: 'float', nullable: true })
+    latitude: number;
+
+    @Column({ type: 'float', nullable: true })
+    longitude: number;
 
 }
