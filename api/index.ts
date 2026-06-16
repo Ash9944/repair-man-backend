@@ -3,8 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import express from 'express';
-// Import from the pre-built dist — avoids src/ path-alias issues at runtime
-import { AppModule } from '../dist/app.module';
+// Loaded at runtime from the pre-built dist — avoids src/ path-alias issues
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { AppModule } = require('../dist/app.module');
 import { ConfigService } from '@nestjs/config';
 
 const expressApp = express();
