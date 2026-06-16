@@ -3,9 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import express from 'express';
-import { AppModule } from '../src/app.module';
+// Import from the pre-built dist — avoids src/ path-alias issues at runtime
+import { AppModule } from '../dist/app.module';
 import { ConfigService } from '@nestjs/config';
-import { AllConfigType } from '../src/configs/config.types';
 
 const expressApp = express();
 let initialized = false;
@@ -19,7 +19,7 @@ async function bootstrap() {
     { logger: ['error', 'warn'] },
   );
 
-  const configService = app.get(ConfigService<AllConfigType>);
+  const configService = app.get(ConfigService);
 
   const allowedOrigins = process.env.ALLOWED_ORIGINS;
   const origins: string | string[] = allowedOrigins
