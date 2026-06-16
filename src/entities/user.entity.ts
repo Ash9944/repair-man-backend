@@ -3,6 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateCol
 import { UserRoles } from './userRoles.entity';
 import { Exclude } from 'class-transformer';
 import { ProviderAddresses } from './providerAddress.entity';
+import { ShopDetails } from './shopDetails.entity';
 
 @Entity()
 export class User {
@@ -37,19 +38,28 @@ export class User {
     @DeleteDateColumn({ nullable: true })
     deleted_at?: Date;
 
-    @ManyToOne(() => UserRoles, (userRoles) => userRoles.id)
+    @ManyToOne(() => UserRoles, (userRoles) => userRoles.users, { nullable: true })
     @JoinColumn({ name: "role_id" })
     roles: UserRoles;
 
     @Column({ nullable: true })
     role_id: string;
 
-    @OneToMany(() => ProviderAddresses, (add) => add.user, { nullable: true })
-    addresses: ProviderAddresses[];
-
     @Column({ nullable: true })
     gender: string;
 
     @Column({ nullable: true })
     dob: string;
+
+    @Column({ nullable: true })
+    profile_image: string;
+
+    @Column({ nullable: true })
+    is_active: boolean;
+
+    @Column({ nullable: true })
+    is_verified: boolean;
+
+    @OneToMany(() => ShopDetails, (shopDetails) => shopDetails.user, { nullable: true })
+    shopDetails: ShopDetails[];
 }

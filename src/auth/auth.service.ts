@@ -1,5 +1,6 @@
 import { HttpStatus, Inject, Injectable, InternalServerErrorException, Scope } from '@nestjs/common';
-import { AdminLoginResponseDto, LoginCredentialsDto, OtpVerificationDto } from './dto/LoginCredentials.dto';
+import { AdminLoginCredentialsDto, LoginCredentialsDto, OtpVerificationDto } from './dto/LoginCredentials.dto';
+import * as bcrypt from 'bcrypt';
 import { BaseRepository } from 'src/common/base-repository';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
@@ -101,25 +102,27 @@ export class AuthService extends BaseRepository {
             // Generate access token
             const payload = { userId: user.id, phoneNumber: user.mobile }
             const accessToken = this.jwtService.sign(payload, {
-                secret: process.env.JWT_ACCESS_SECRET,
+                secret: this.configService.get<string>('JWT_SECRET'),
                 expiresIn: '7d',
             });
 
             const hashedAccessToken = await this.commonServices.hashToken(accessToken);
             const tokenRepo = this.getRepository(Token);
+            const ip = this.commonServices.getIP(this.request);
 
-            const isExistingTokenRepo = await tokenRepo.findOne({ where: { user_id: user.id, ip_address: this.commonServices.getIP(this.request) } });
-            if (isExistingTokenRepo) {
-                return { token: isExistingTokenRepo.acess_token, success: true, user: user };
+            // Upsert: replace any existing token for this user+IP
+            const existing = await tokenRepo.findOne({ where: { user_id: user.id, ip_address: ip } });
+            if (existing) {
+                await tokenRepo.update({ id: existing.id }, { access_token: hashedAccessToken });
+            } else {
+                const tokenEntry = tokenRepo.create({
+                    user_id: user.id,
+                    access_token: hashedAccessToken,
+                    ip_address: ip,
+                });
+                await tokenRepo.save(tokenEntry);
             }
 
-            const tokenEntry = tokenRepo.create({
-                user_id: user.id,
-                acess_token: hashedAccessToken,
-                ip_address: this.commonServices.getIP(this.request)
-            });
-
-            await tokenRepo.save(tokenEntry);
             await otpRepo.remove(otpEntry);
             return { token: accessToken, success: true, user: user };
         } catch (error) {
@@ -127,42 +130,40 @@ export class AuthService extends BaseRepository {
         }
     }
 
-    //  async login(body: AdminLoginResponseDto): Promise<{ token: string, success: Boolean, user: any }> {
-    //     try {
-    //         const userRepo = this.getRepository(User);
-    //         const user = await userRepo.findOne({ where: { mobile: body.phoneNumber } });
-    //         if (!user) {
-    //             throw new Error("User not found", { cause: HttpStatus.BAD_REQUEST });
-    //         }
+    async adminLogin(body: AdminLoginCredentialsDto): Promise<{ access_token: string; success: boolean }> {
+        try {
+            const userRepo = this.getRepository(User);
+            const user = await userRepo.findOne({
+                where: { email: body.email },
+                relations: ['roles'],
+            });
 
-    //         // Here you would typically verify the password or other credentials
-    //         // For simplicity, we're skipping that step
+            if (!user) {
+                throw new Error('Invalid credentials', { cause: HttpStatus.UNAUTHORIZED });
+            }
 
-    //         // Generate access token
-    //         const payload = { userId: user.id, phoneNumber: user.mobile }
-    //         const accessToken = this.jwtService.sign(payload, {
-    //             secret: process.env.JWT_ACCESS_SECRET,
-    //             expiresIn: '7d',
-    //         });
+            if (!user.password) {
+                throw new Error('Invalid credentials', { cause: HttpStatus.UNAUTHORIZED });
+            }
 
-    //         const hashedAccessToken = await this.commonServices.hashToken(accessToken);
-    //         const tokenRepo = this.getRepository(Token);
+            const passwordValid = await bcrypt.compare(body.password, user.password);
+            if (!passwordValid) {
+                throw new Error('Invalid credentials', { cause: HttpStatus.UNAUTHORIZED });
+            }
 
-    //         const isExistingTokenRepo = await tokenRepo.findOne({ where: { user_id: user.id, ip_address: this.commonServices.getIP(this.request) } });
-    //         if (isExistingTokenRepo) {
-    //             return { token: isExistingTokenRepo.acess_token, success: true, user: user };
-    //         }
+            if (user.roles?.key !== 'admin') {
+                throw new Error('Access denied', { cause: HttpStatus.FORBIDDEN });
+            }
 
-    //         const tokenEntry = tokenRepo.create({
-    //             user_id: user.id,
-    //             acess_token: hashedAccessToken,
-    //             ip_address: this.commonServices.getIP(this.request)
-    //         });
+            const payload = { userId: user.id, mobile: user.mobile, role: 'admin' };
+            const access_token = this.jwtService.sign(payload, {
+                secret: this.configService.get<string>('JWT_SECRET'),
+                expiresIn: '1d',
+            });
 
-    //         await tokenRepo.save(tokenEntry);
-    //         return { token: accessToken, success: true, user: user };
-    //     } catch (error) {
-    //         throw Exception(error?.cause || HttpStatus.INTERNAL_SERVER_ERROR, error?.message || "Failed to login");
-    //     }
-    // }
+            return { access_token, success: true };
+        } catch (error) {
+            throw Exception(error?.cause || HttpStatus.INTERNAL_SERVER_ERROR, error?.message || 'Login failed');
+        }
+    }
 }

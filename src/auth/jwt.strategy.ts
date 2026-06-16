@@ -13,7 +13,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: any) {
-        // This runs automatically when token is valid
-        return { userId: payload.userId, mobile: payload.phoneNumber };
+        return { userId: payload.userId, mobile: payload.mobile ?? payload.phoneNumber, role: payload.role };
     }
 }

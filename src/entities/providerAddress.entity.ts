@@ -1,17 +1,18 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
+import { ShopDetails } from "./shopDetails.entity";
 
 @Entity()
 export class ProviderAddresses {
-    @PrimaryColumn('uuid')
+    @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @ManyToOne(() => User, (user) => user.addresses)
-    @JoinColumn({ name: "user_id" })
-    user : User;
+    @ManyToOne(() => ShopDetails, (shop) => shop.shopAddress)
+    @JoinColumn({ name: "shop_id" })
+    shop: ShopDetails;
 
     @Column({ nullable: true })
-    user_id: string;
+    shop_id: string;
 
     @Column()
     address_line1: string;
@@ -21,6 +22,9 @@ export class ProviderAddresses {
 
     @Column()
     city: string;
+
+    @Column()
+    area: string;
 
     @Column()
     state: string;

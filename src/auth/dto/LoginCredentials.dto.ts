@@ -16,9 +16,9 @@ export class OtpVerificationDto {
     code: string
 }
 
-export class AdminLoginResponseDto {
+export class AdminLoginCredentialsDto {
     @IsString()
-    userName: string;
+    email: string;
 
     @IsString()
     password: string;
